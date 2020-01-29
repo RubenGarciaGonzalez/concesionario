@@ -23,7 +23,11 @@ class CreateCochesTable extends Migration
             $table->float('pvp', 7,2);
             $table->string('foto')->default('/public/img/coches/default.jpg');
             $table->bigInteger('marca_id')->unsigned()->nullable();
-            $table->foreign('marca_id')->references('id')->on('marcas')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('marca_id')
+            ->references('id')
+            ->on('marcas')
+            ->onDelete('set null')
+            ->onUpdate('cascade');
             $table->timestamps();
         });
     }
