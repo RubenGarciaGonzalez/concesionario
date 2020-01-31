@@ -20,14 +20,14 @@ class CreateCochesTable extends Migration
             $table->string('color')->default('Blanco');
             $table->string('tipo')->default('Gasolina');
             $table->integer('klms');
-            $table->float('pvp', 7,2);
-            $table->string('foto')->default('/public/img/coches/default.jpg');
+            $table->float('pvp', 7, 2);
+            $table->string('foto')->default('/img/coches/default.jpg');
             $table->bigInteger('marca_id')->unsigned()->nullable();
             $table->foreign('marca_id')
-            ->references('id')
-            ->on('marcas')
-            ->onDelete('set null')
-            ->onUpdate('cascade');
+                ->references('id')
+                ->on('marcas')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
             $table->timestamps();
         });
     }

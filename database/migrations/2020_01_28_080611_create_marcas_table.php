@@ -16,7 +16,7 @@ class CreateMarcasTable extends Migration
         Schema::create('marcas', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('nombre', 40)->unique();
-            $table->string('logo')->default('/public/img/marcas/default.png');
+            $table->string('logo')->default('/img/marcas/default.jpg');
             $table->string('pais', 40)->nullable();
             $table->timestamps();
         });
