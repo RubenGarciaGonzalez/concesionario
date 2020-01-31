@@ -79,6 +79,15 @@ class CocheSeeder extends Seeder
             'marca_id'=>'5'
         ]);
 
+        Coche::create([
+            'matricula'=>'4747-FOP',
+            'modelo'=>'Wingston',
+            'color'=>'Gris',
+            'tipo'=>'Gasolina',
+            'klms'=>'12000',
+            'pvp'=>'9500',
+        ]);
+
 
 
     }

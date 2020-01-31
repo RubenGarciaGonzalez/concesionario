@@ -14,7 +14,8 @@ class CocheController extends Controller
      */
     public function index()
     {
-        //
+        $coches = Coche::orderBy('marca_id')->paginate(3);
+        return view('coches.index', compact('coches'));
     }
 
     /**
