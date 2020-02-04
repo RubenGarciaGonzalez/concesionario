@@ -6,6 +6,10 @@
     Coches disponibles
 @endsection
 @section('contenido')
+@if ($texto=Session::get('mensaje'))
+    <p class="alert alert-success my-3">{{$texto}}</p>
+@endif
+<a href="{{route('coches.create')}}" class="btn btn-success mb-3">Guardar Coche</a>
     <table class="table table-striped table-dark">
         <thead>
             <tr>
@@ -30,11 +34,16 @@
                     <td class="align-middle">{{$coche->modelo}}</td>
                     <td class="align-middle">{{$coche->tipo}}</td>
                     <td class="align-middle">
-                        <img src="{{asset($coche->foto)}}" width="120px" height="130px;" class="rounded-circle">
+                        <img src="{{asset($coche->foto)}}" width="90px" height="100px;" class="rounded-circle">
                     </td>
                     <td class="align-middle">{{$coche->klms}}</td>
-                    <td>
-                        Botones
+                    <td class="align-middle" style="white-space: nowrap;">
+                        <form name="borrar" method="POST" action="{{route('coches.destroy', $coche)}}" >
+                            @csrf
+                            @method('DELETE')
+                            <a href="{{route('coches.edit', $coche)}}" class="btn btn-warning">Editar</a>
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Borrar Coche?')">Borrar</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

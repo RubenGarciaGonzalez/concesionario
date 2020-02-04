@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Coche;
+use App\Rules\Matricula;
 use Illuminate\Http\Request;
+use App\Marca;
+use Illuminate\Support\Facades\Storage;
 
 class CocheController extends Controller
 {
@@ -25,7 +28,8 @@ class CocheController extends Controller
      */
     public function create()
     {
-        //
+        $marcas=Marca::orderBy('nombre')->get();
+        return view('coches.create', compact('marcas'));
     }
 
     /**
@@ -36,7 +40,30 @@ class CocheController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'matricula'=>['required', 'unique:coches,matricula', new Matricula()],
+            'modelo'=>['required']
+        ]);
+        //Compruebo si he subido archivos
+        if ($request->has('foto')) {
+            $request->validate([
+                'foto'=>['image']
+            ]);
+            //Todo bien -> hemos subido un archivo y es de imagen
+            $file=$request->file('foto');
+            //Creo un nombre
+            $nombre = 'coches/'.time().'_'.$file->getClientOriginalName();
+            //Guardo el archivo de imagen
+            Storage::disk('public')->put($nombre, \File::get($file));
+            //Guardo el coche pero la imagen estaría mal 
+            $coche = Coche::create($request->all());
+            //Actualiza el registro foto del coche guardado
+            $coche->update(['foto'=>"img/$nombre"]);
+        }else{
+            Coche::create($request->all());
+        }
+
+        return redirect()->route('coches.index')->with('mensaje', "Coche guardado correctamente");
     }
 
     /**
@@ -45,9 +72,9 @@ class CocheController extends Controller
      * @param  \App\Coche  $coche
      * @return \Illuminate\Http\Response
      */
-    public function show(Coche $coche)
+    public function show(Coche $coch)
     {
-        //
+        return view('coches.show', compact('coch'));
     }
 
     /**
@@ -56,9 +83,11 @@ class CocheController extends Controller
      * @param  \App\Coche  $coche
      * @return \Illuminate\Http\Response
      */
-    public function edit(Coche $coche)
+    public function edit(Coche $coch)
     {
-        //
+        $marcas=Marca::orderBy('nombre')->get();
+        $tipos=['Diesel', 'Gasolina', 'Hibrido', 'Eléctrico', 'Gas (GNC/GLC)'];
+        return view('coches.edit', compact('coch', 'marcas', 'tipos'));
     }
 
     /**
@@ -68,7 +97,7 @@ class CocheController extends Controller
      * @param  \App\Coche  $coche
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Coche $coche)
+    public function update(Request $request, Coche $coch)
     {
         //
     }
@@ -79,8 +108,17 @@ class CocheController extends Controller
      * @param  \App\Coche  $coche
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Coche $coche)
+    public function destroy(Coche $coch)
     {
-        //
+        //Dos cosas: borrar la imagen si no es default.jpg
+        //Y borrar registro
+        $foto = $coch->foto;
+        if (basename($foto)!='default.jpg') {
+            //La fotografía NO es default.jpg
+            unlink($foto);
+        }
+        //En cualquier caso borro el registro
+        $coch->delete();
+        return redirect()->route('coches.index')->with('mensaje', 'Coche Eliminado');
     }
 }
