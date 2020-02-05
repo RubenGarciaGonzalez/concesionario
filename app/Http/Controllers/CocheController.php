@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Coche;
+use App\Marca;
 use App\Rules\Matricula;
 use Illuminate\Http\Request;
-use App\Marca;
 use Illuminate\Support\Facades\Storage;
 
 class CocheController extends Controller
@@ -15,10 +15,16 @@ class CocheController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $coches = Coche::orderBy('marca_id')->paginate(3);
-        return view('coches.index', compact('coches'));
+        $miMarca = $request->get('marca_id');
+
+        $marcas = Marca::orderBy('nombre')->get();
+        
+        $coches = Coche::orderBy('marca_id')
+            ->marca_id($miMarca)
+            ->paginate(3);
+        return view('coches.index', compact('coches', 'marcas', 'request'));
     }
 
     /**
@@ -28,7 +34,7 @@ class CocheController extends Controller
      */
     public function create()
     {
-        $marcas=Marca::orderBy('nombre')->get();
+        $marcas = Marca::orderBy('nombre')->get();
         return view('coches.create', compact('marcas'));
     }
 
@@ -41,25 +47,25 @@ class CocheController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'matricula'=>['required', 'unique:coches,matricula', new Matricula()],
-            'modelo'=>['required']
+            'matricula' => ['required', 'unique:coches,matricula', new Matricula()],
+            'modelo' => ['required'],
         ]);
         //Compruebo si he subido archivos
         if ($request->has('foto')) {
             $request->validate([
-                'foto'=>['image']
+                'foto' => ['image'],
             ]);
             //Todo bien -> hemos subido un archivo y es de imagen
-            $file=$request->file('foto');
+            $file = $request->file('foto');
             //Creo un nombre
-            $nombre = 'coches/'.time().'_'.$file->getClientOriginalName();
+            $nombre = 'coches/' . time() . '_' . $file->getClientOriginalName();
             //Guardo el archivo de imagen
             Storage::disk('public')->put($nombre, \File::get($file));
-            //Guardo el coche pero la imagen estaría mal 
+            //Guardo el coche pero la imagen estaría mal
             $coche = Coche::create($request->all());
             //Actualiza el registro foto del coche guardado
-            $coche->update(['foto'=>"img/$nombre"]);
-        }else{
+            $coche->update(['foto' => "img/$nombre"]);
+        } else {
             Coche::create($request->all());
         }
 
@@ -85,8 +91,8 @@ class CocheController extends Controller
      */
     public function edit(Coche $coch)
     {
-        $marcas=Marca::orderBy('nombre')->get();
-        $tipos=['Diesel', 'Gasolina', 'Hibrido', 'Eléctrico', 'Gas (GNC/GLC)'];
+        $marcas = Marca::orderBy('nombre')->get();
+        $tipos = ['Diesel', 'Gasolina', 'Hibrido', 'Eléctrico', 'Gas (GNC/GLC)'];
         return view('coches.edit', compact('coch', 'marcas', 'tipos'));
     }
 
@@ -99,7 +105,34 @@ class CocheController extends Controller
      */
     public function update(Request $request, Coche $coch)
     {
-        //
+        $request->validate([
+            'matricula' => ['required', 'unique:coches,matricula, ' . $coch->id, new Matricula()],
+            'modelo' => ['required'],
+        ]);
+        //Compruebo si he subido archivos
+        if ($request->has('foto')) {
+            $request->validate([
+                'foto' => ['image'],
+            ]);
+            //Todo bien -> hemos subido un archivo y es de imagen
+            $file = $request->file('foto');
+            //Creo un nombre
+            $nombre = 'coches/' . time() . '_' . $file->getClientOriginalName();
+            //Guardo el archivo de imagen
+            Storage::disk('public')->put($nombre, \File::get($file));
+            //Si he subido una foto nueva, borro la vieja salvo que sea default.jpg
+            if (basename($coch->foto) != 'default.jpg') {
+                unlink($coch->foto);
+            }
+            //Ahora actualizo el coche
+            $coch->update($request->all());
+            $coch->update(['foto' => "img/$nombre"]);
+
+        } else {
+            $coch->update($request->all());
+        }
+
+        return redirect()->route('coches.index')->with('mensaje', "Coche modificado");
     }
 
     /**
@@ -113,7 +146,7 @@ class CocheController extends Controller
         //Dos cosas: borrar la imagen si no es default.jpg
         //Y borrar registro
         $foto = $coch->foto;
-        if (basename($foto)!='default.jpg') {
+        if (basename($foto) != 'default.jpg') {
             //La fotografía NO es default.jpg
             unlink($foto);
         }

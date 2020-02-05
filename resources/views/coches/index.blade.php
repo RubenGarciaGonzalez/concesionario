@@ -9,7 +9,23 @@
 @if ($texto=Session::get('mensaje'))
     <p class="alert alert-success my-3">{{$texto}}</p>
 @endif
-<a href="{{route('coches.create')}}" class="btn btn-success mb-3">Guardar Coche</a>
+<div class="container">
+    <a href="{{route('coches.create')}}" class="btn btn-success mb-3">Guardar Coche</a>
+    <form name="search" method="GET" action="{{route('coches.index')}}" class="form-inline float-right">
+        <i class="fa fa-search ml-3 mr-2" aria-hidden="true"></i>
+        <select name="marca_id" class="form-control">
+            <option value="%">Todos</option>
+            @foreach ($marcas as $marca)
+                @if ($marca->id==$request->marca_id)
+                    <option value="{{$marca->id}}" selected>{{$marca->nombre}}</option>
+                @else
+                    <option value="{{$marca->id}}">{{$marca->nombre}}</option>
+                @endif
+            @endforeach
+        </select>
+        <input type="submit" value="Buscar" class="btn btn-info ml-2">
+    </form>
+</div>
     <table class="table table-striped table-dark">
         <thead>
             <tr>
@@ -49,5 +65,5 @@
                 @endforeach
         </tbody>
     </table>
-    {{$coches->links()}}
+    {{$coches->appends(Request::except('page'))->links()}}
 @endsection

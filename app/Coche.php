@@ -13,4 +13,14 @@ class Coche extends Model
         return $this->belongsTo(Marca::class)
         ->withDefault(['nombre'=>'Sin Marca']);
     }
+
+    //Scopes
+    public function scopeMarca_id($query, $v){
+        if ($v=='%') {
+            return $query->where('marca_id','like', $v)
+                ->orWhereNull('marca_id');
+        }else{
+            return $query->where('marca_id', "$v");
+        }
+    }
 }
