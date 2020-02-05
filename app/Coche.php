@@ -19,6 +19,8 @@ class Coche extends Model
         if ($v=='%') {
             return $query->where('marca_id','like', $v)
                 ->orWhereNull('marca_id');
+        }elseif($v==-1){
+            return $query->whereNull('marca_id');
         }else{
             return $query->where('marca_id', "$v");
         }

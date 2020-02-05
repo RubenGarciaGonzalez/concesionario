@@ -15,6 +15,7 @@
         <i class="fa fa-search ml-3 mr-2" aria-hidden="true"></i>
         <select name="marca_id" class="form-control">
             <option value="%">Todos</option>
+            <option value="-1">Sin Marca</option>
             @foreach ($marcas as $marca)
                 @if ($marca->id==$request->marca_id)
                     <option value="{{$marca->id}}" selected>{{$marca->nombre}}</option>
