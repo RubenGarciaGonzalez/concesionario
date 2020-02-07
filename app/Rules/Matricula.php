@@ -35,6 +35,6 @@ class Matricula implements Rule
      */
     public function message()
     {
-        return 'El formato de matrícula es inválido!';
+        return 'El formato de matrícula es inválido!!!';
     }
 }

@@ -14,10 +14,5 @@
 Route::get('/', function () {
     return view('index');
 });
-
-
-
 Route::resource('marcas', 'MarcaController');
 Route::resource('coches', 'CocheController');
-
-
