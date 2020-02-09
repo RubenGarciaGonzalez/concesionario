@@ -127,7 +127,7 @@ class MarcaController extends Controller
         else{
             $marca->update($request->all());
         }
-        return redirect()->route('marcas.index')->with("mensaje", "Marca Modificado");
+        return redirect()->route('marcas.index')->with("mensaje", "Marca Modificada");
     }
 
     /**
